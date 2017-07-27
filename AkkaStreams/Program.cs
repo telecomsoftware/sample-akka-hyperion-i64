@@ -1,5 +1,6 @@
 ﻿using System;
-using Akka.Actor;
+using System.Diagnostics;
+using Topshelf;
 
 namespace AkkaStreams
 {
@@ -7,19 +8,25 @@ namespace AkkaStreams
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting AkkaStreams test program");
+            Console.WriteLine("Starting Topshelf service");
 
-            using (ActorSystem sys = ActorSystem.Create("local-system"))
+            HostFactory.Run(cfg =>
             {
-                IActorRef receiver = sys.ActorOf(Props.Create(() => new ReceiverActor()));
-                IActorRef sender = sys.ActorOf(Props.Create(() => new SenderActor(receiver)));
+                cfg.Service<Service>(s =>
+                {
+                    s.ConstructUsing(name => new Service());
+                    s.WhenStarted((service, host) => { return service.Start(host); });
+                    s.WhenStopped((service) => service.Stop());
+                });
+                cfg.SetDisplayName("AkkaStreams");
+                cfg.SetServiceName("AkkaStreams");
+            });
 
-                Console.WriteLine("Start signal");
-                sender.Tell(new Messages.StartSending());
+            if (Debugger.IsAttached)
+            {
+                Console.WriteLine("Press [Enter] to exit");
+                Console.ReadLine();
             }
-
-            Console.WriteLine("Press [Enter] to exit");
-            Console.ReadLine();
         }
     }
 }
