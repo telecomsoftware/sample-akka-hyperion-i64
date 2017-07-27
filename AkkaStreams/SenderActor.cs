@@ -10,7 +10,7 @@ namespace AkkaStreams
     class SenderActor : ReceiveActor
     {
         private readonly IActorRef receiver;
-        private const string FILENAME = @"c:\ports.txt";
+        private const string FILENAME = @"d:\ports.txt";
         private const int CHUNK_SIZE = 8192;
 
         public SenderActor(IActorRef receiver)
@@ -22,12 +22,17 @@ namespace AkkaStreams
 
         private void ReceivedStartSending(Messages.StartSending message)
         {
+            Console.WriteLine($"[sender] ReceivedStartSending()");
             var stream = new FileStream(FILENAME, FileMode.Open);
 
             var materializer = Context.Materializer();
             var source = StreamConverters.FromInputStream(() => stream, CHUNK_SIZE);
             var result = source.To(Sink.ActorRef<ByteString>(this.receiver, new Messages.StreamComplete()))
                 .Run(materializer);
+            result.ContinueWith((ioResult) =>
+            {
+                Console.WriteLine($"[sender] Stream Completed, successful = {ioResult.Result.WasSuccessful}");
+            });
         }
     }
 }

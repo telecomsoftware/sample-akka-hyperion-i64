@@ -1,13 +1,18 @@
-﻿using Akka.Actor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using Akka.Actor;
 
 namespace AkkaStreams
 {
     class ReceiverActor : ReceiveActor
     {
+        public ReceiverActor()
+        {
+            ReceiveAny((message) => ReceivedAnyMessage(message));
+        }
+
+        public void ReceivedAnyMessage(object message)
+        {
+            Console.WriteLine($"[receiver] got message ${message.GetType().FullName}");
+        }
     }
 }
