@@ -28,6 +28,10 @@ namespace AkkaStreams
         public void Stop()
         {
             Console.WriteLine("Stopping");
+
+            this.system.Terminate().Wait();
+
+            Console.WriteLine("Stopped");
         }
     }
 }
