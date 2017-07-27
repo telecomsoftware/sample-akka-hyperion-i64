@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Akka.Actor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,15 @@ namespace AkkaStreams
     {
         static void Main(string[] args)
         {
+            using (ActorSystem sys = ActorSystem.Create("local-system"))
+            {
+                IActorRef receiver = sys.ActorOf(Props.Create(() => new ReceiverActor()));
+                IActorRef sender = sys.ActorOf(Props.Create(() => new SenderActor(receiver)));
+
+                sender.Tell(new Messages.StartSending());
+            }
+
+            Console.ReadLine();
         }
     }
 }
