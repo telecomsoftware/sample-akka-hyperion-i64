@@ -21,7 +21,7 @@ namespace RemoteReceiver
 
             this.system = ActorSystem.Create("another-local-system");
 
-            IActorRef receiver = this.system.ActorOf(Props.Create(() => new ReceiverActor()));
+            IActorRef receiver = this.system.ActorOf(Props.Create(() => new ReceiverActor()), "receiver-one");
 
             Console.WriteLine("Started");
             return true;

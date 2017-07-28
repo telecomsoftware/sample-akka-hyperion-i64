@@ -20,8 +20,6 @@ namespace AkkaStreams
             IActorRef receiver = this.system.ActorOf(Props.Create(() => new ReceiverActor()));
             IActorRef sender = this.system.ActorOf(Props.Create(() => new SenderActor(receiver)));
 
-            sender.Tell(new Messages.StartSending());
-
             Console.WriteLine("Started");
             return true;
         }

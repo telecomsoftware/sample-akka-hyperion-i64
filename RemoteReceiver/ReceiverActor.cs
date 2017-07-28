@@ -7,7 +7,12 @@ namespace RemoteReceiver
     {
         public ReceiverActor()
         {
+            ReceiveAny((message) => ReceivedAny(message));
+        }
 
+        private void ReceivedAny(object message)
+        {
+            Console.WriteLine($"[remote-receiver] got a {message.GetType().FullName}");
         }
     }
 }

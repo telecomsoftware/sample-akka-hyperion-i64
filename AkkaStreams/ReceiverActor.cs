@@ -34,9 +34,6 @@ namespace AkkaStreams
         private void ReceivedStreamComplete(Messages.StreamComplete message)
         {
             Console.WriteLine($"[receiver] got signaled that the stream completed, local stream length {this.stream.Length}");
-            Console.WriteLine("RECEIVED:");
-            Console.WriteLine(Encoding.UTF8.GetString(this.stream.GetBuffer()));
-            Console.WriteLine("-eod-");
         }
 
         private void ReceivedStreamChunk(ByteString message)

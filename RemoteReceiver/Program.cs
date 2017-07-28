@@ -18,8 +18,8 @@ namespace RemoteReceiver
                     s.WhenStarted((service, host) => { return service.Start(host); });
                     s.WhenStopped((service) => service.Stop());
                 });
-                cfg.SetDisplayName("AkkaStreams");
-                cfg.SetServiceName("AkkaStreams");
+                cfg.SetDisplayName("RemoteReceiver");
+                cfg.SetServiceName("RemoteReceiver");
             });
 
             if (Debugger.IsAttached)

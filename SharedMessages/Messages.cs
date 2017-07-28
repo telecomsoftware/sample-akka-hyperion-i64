@@ -9,5 +9,8 @@ namespace SharedMessages
 
         public class StreamComplete
         { }
+
+        public class Hail
+        { }
     }
 }
