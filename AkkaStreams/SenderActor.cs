@@ -4,6 +4,7 @@ using Akka.Actor;
 using Akka.IO;
 using Akka.Streams;
 using Akka.Streams.Dsl;
+using SharedMessages;
 
 namespace AkkaStreams
 {

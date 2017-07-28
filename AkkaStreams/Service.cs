@@ -1,5 +1,6 @@
 ﻿using System;
 using Akka.Actor;
+using SharedMessages;
 using Topshelf;
 
 namespace AkkaStreams
