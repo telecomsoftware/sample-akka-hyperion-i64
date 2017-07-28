@@ -16,6 +16,7 @@ namespace AkkaStreams
             this.stream = new MemoryStream();
 
             Receive<ByteString>((message) => ReceivedStreamChunk(message));
+            Receive<byte[]>((message) => ReceivedByteChunk(message));
             Receive<Messages.StreamComplete>((message) => ReceivedStreamComplete(message));
             Receive<Terminated>((message) => ReceivedTerminated(message));
             ReceiveAny((message) => ReceivedAnyMessage(message));
@@ -41,6 +42,12 @@ namespace AkkaStreams
             var bytes = message.ToArray();
             this.stream.Write(bytes, 0, bytes.Length);
             Console.WriteLine($"[receiver] got chunk, now stream length {this.stream.Length}");
+        }
+
+        private void ReceivedByteChunk(byte[] message)
+        {
+            this.stream.Write(message, 0, message.Length);
+            Console.WriteLine($"[receiver] got raw-chunk, now stream length {this.stream.Length}");
         }
 
         private void ReceivedAnyMessage(object message)

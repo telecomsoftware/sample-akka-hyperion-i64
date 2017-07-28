@@ -26,27 +26,33 @@ namespace AkkaStreams
         private async Task ReceivedStartSending(Messages.StartSending message)
         {
             Console.WriteLine($"[sender] ReceivedStartSending()");
+
+            var sel = Context.ActorSelection("akka.tcp://another-local-system@127.0.0.1:8092/user/receiver-one");
+            var remoteRef = await sel.ResolveOne(TimeSpan.FromSeconds(5));
+            remoteRef.Tell(new Messages.Hail());
+
             var stream = new FileStream(FILENAME, FileMode.Open);
 
             var materializer = Context.Materializer();
-            var source = StreamConverters.FromInputStream(() => stream, CHUNK_SIZE);
-            var result = source.To(Sink.ActorRef<ByteString>(this.receiver, new Messages.StreamComplete()))
-                .Run(materializer);
-            await result.ContinueWith((ioResult) =>
-            {
-                Console.WriteLine($"[sender] Stream Completed, successful = {ioResult.Result.WasSuccessful}");
-            });
 
-            var sel = Context.ActorSelection("akka.tcp://another-local-system@127.0.0.1:8092/user/receiver-one");
-            sel.Tell(new Messages.Hail());
-            var remoteRef = await sel.ResolveOne(TimeSpan.FromSeconds(5));
+            var source = StreamConverters.FromInputStream(() => stream, CHUNK_SIZE)
+                .Select(bs => bs.ToArray());
 
-            var remoteResult = source.To(Sink.ActorRef<ByteString>(remoteRef, new Messages.StreamComplete()))
-                .Run(materializer);
-            await remoteResult.ContinueWith((ioResult) =>
-            {
-                Console.WriteLine($"[sender] Stream to Remote completed, successful = {ioResult.Result.WasSuccessful}");
-            });
+            // single output local
+            /*var localResult = source
+                .To(Sink.ActorRef<byte[]>(this.receiver, new Messages.StreamComplete()))
+                .Run(materializer);*/
+
+            // single output remote
+            /*var remoteResult = source
+                .To(Sink.ActorRef<byte[]>(remoteRef, new Messages.StreamComplete()))
+                .Run(materializer);*/
+
+            // graph-based multiplex to local and remote
+            var localSink = Sink.ActorRef<byte[]>(this.receiver, new Messages.StreamComplete());
+            var remoteSink = Sink.ActorRef<byte[]>(remoteRef, new Messages.StreamComplete());
+            var sink = Sink.Combine(i => new Broadcast<byte[]>(i), localSink, remoteSink);
+            source.RunWith(sink, materializer);
         }
     }
 }
