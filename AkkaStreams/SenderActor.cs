@@ -31,7 +31,12 @@ namespace AkkaStreams
             var remoteRef = await sel.ResolveOne(TimeSpan.FromSeconds(5));
             remoteRef.Tell(new Messages.Hail());
 
+            // these two lines simulate the problem without using Akka.Streams at all
+            //remoteRef.Tell(new ObjectDisposedException("stream", "already disposed"));
+            //return;
+
             var stream = new FileStream(FILENAME, FileMode.Open);
+            //stream.Close(); // causes Akka.Actor.Status.Failure with ObjectDisposedException which causes error
 
             var materializer = Context.Materializer();
 
@@ -52,7 +57,7 @@ namespace AkkaStreams
             var localSink = Sink.ActorRef<byte[]>(this.receiver, new Messages.StreamComplete());
             var remoteSink = Sink.ActorRef<byte[]>(remoteRef, new Messages.StreamComplete());
             var sink = Sink.Combine(i => new Broadcast<byte[]>(i), localSink, remoteSink);
-            source.RunWith(sink, materializer);
+            //source.RunWith(sink, materializer);
         }
     }
 }
