@@ -20,6 +20,12 @@ namespace AkkaStreams
             IActorRef receiver = this.system.ActorOf(Props.Create(() => new ReceiverActor()));
             IActorRef sender = this.system.ActorOf(Props.Create(() => new SenderActor(receiver)));
 
+            // test serializer
+            var message = new ObjectDisposedException("oh no");
+            var serializer = system.Serialization.FindSerializerFor(message);
+            var binary = serializer.ToBinary(message);
+            var msg = serializer.FromBinary(binary, null);
+
             Console.WriteLine("Started");
             return true;
         }
